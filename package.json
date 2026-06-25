@@ -1,0 +1,28 @@
+{
+  "name": "rag-api-dev",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts"
+  },
+  "keywords": [],
+  "author": "Jonatha Follmer",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@langchain/community": "^1.1.29",
+    "@langchain/core": "^1.2.1",
+    "dotenv": "^16.6.1",
+    "express": "^5.2.1",
+    "pdf-parse": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.0.1",
+    "@types/pdf-parse": "^1.1.5",
+        "@types/dotenv": "^6.1.1",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  }
+}
