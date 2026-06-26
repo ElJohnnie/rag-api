@@ -1,0 +1,29 @@
+import { QdrantClient } from "@qdrant/js-client-rest";
+import { config } from "../config.js";
+
+export const qdrantClient = new QdrantClient({
+	url: config.qdrant.url,
+});
+
+export async function initQdrantCollection() {
+	const collections = await qdrantClient.getCollections();
+
+	const exists = collections.collections.some(
+		(col) => col.name === config.qdrant.collectionName,
+	);
+
+	if (!exists) {
+		await qdrantClient.createCollection(config.qdrant.collectionName, {
+			vectors: {
+				size: config.embeddings.vectorSize, // Dimensão do modelo local de embeddings (all-MiniLM-L6-v2 → 384)
+				distance: "Cosine", // Métrica padrão de similaridade para embeddings de texto
+			},
+		});
+
+		console.log(`✔︎ Collection '${config.qdrant.collectionName}' created.`);
+	} else {
+		console.log(
+			`✔︎ Collection '${config.qdrant.collectionName}' already exists.`,
+		);
+	}
+}

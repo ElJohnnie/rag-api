@@ -1,15 +1,22 @@
-import express from "express";
-import { config } from "./config.ts";
+import { processDocument } from "./services/document.ts";
+import { initQdrantCollection } from "./services/qdrant.ts";
 
-const app = express();
-app.use(express.json());
+import path from "node:path";
 
-app.get("/", (__, res) => {
-  res.send("Hello, World!");
-});
+async function main() {
+  console.log("Initializing application...");
+  try {
+    await initQdrantCollection();
+    console.log("Qdrant collection initialized successfully.");
 
-const PORT = config.server.port;
+    const pdfPath = path.join(process.cwd(), "sample/NIKE10K2023.pdf");
+    console.log(`Processing document: ${pdfPath}`);
+    const uploadResponse = await processDocument(pdfPath, "sample.pdf");
+    console.log("Document processed successfully:", uploadResponse);
+  } catch (error) {
+    console.error("Error initializing Qdrant collection:", error);
+    process.exit(1);
+  }
+}
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+main();
