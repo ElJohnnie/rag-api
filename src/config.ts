@@ -10,6 +10,13 @@ export const config = {
     model: process.env.EMBEDDINGS_MODEL || 'Xenova/all-MiniLM-L6-v2',
     vectorSize: Number(process.env.EMBEDDINGS_VECTOR_SIZE || 384)
   },
+  llm: {
+    // Geração de resposta via HuggingFace Inference API (free tier). Requer token.
+    apiKey: process.env.HUGGING_FACE_API_KEY || '',
+    model: process.env.LLM_MODEL || 'mistralai/Mistral-7B-Instruct-v0.3',
+    temperature: Number(process.env.LLM_TEMPERATURE || 0.1),
+    maxTokens: Number(process.env.LLM_MAX_TOKENS || 512)
+  },
   qdrant: {
     url: process.env.QDRANT_URL || 'http://localhost:6333',
     collectionName: process.env.QDRANT_COLLECTION || 'documents'
