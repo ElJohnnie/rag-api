@@ -14,7 +14,12 @@ export interface SearchResponse {
   id: string;
   text: string;
   score: number;
-  metadata: ChunkMetadata;
+  metadata: {
+    documentId: string;
+    fileName: string;
+    chunkIndex: number;
+    page?: number;
+  };
 }
 
 export interface QueryResponse {
