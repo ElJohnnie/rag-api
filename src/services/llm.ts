@@ -6,12 +6,6 @@ import { AIMessageChunk } from "@langchain/core/messages";
 import { ChatGenerationChunk } from "@langchain/core/outputs";
 import { config } from "../config.js";
 
-if (!config.llm.apiKey) {
-  throw new Error(
-    "HUGGING_FACE_API_KEY não definido. Gere um token gratuito em https://huggingface.co/settings/tokens",
-  );
-}
-
 type HFRole = "system" | "user" | "assistant";
 
 // Mapeia mensagens do LangChain para o formato chat da HuggingFace.

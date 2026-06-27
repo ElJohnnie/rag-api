@@ -39,3 +39,11 @@ export interface RAGResponse {
   answer: string;
   sources: SourceReference[];
 }
+
+// Eventos emitidos pelo streaming de RAG. Pertencem ao domínio — a camada HTTP
+// (controller) é quem os serializa como SSE.
+export type RagStreamEvent =
+  | { type: "sources"; content: SourceReference[] }
+  | { type: "token"; content: string }
+  | { type: "answer"; content: string }
+  | { type: "done" };

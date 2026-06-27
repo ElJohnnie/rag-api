@@ -29,3 +29,13 @@ export const config = {
     maxFileSize: FILE_SIZE_LIMIT_20MB
   }
 }
+
+// Valida a configuração obrigatória no bootstrap (server/ingestão), em vez de
+// lançar erro em tempo de import. Mantém os módulos livres de efeito colateral.
+export function validateConfig() {
+  if (!config.llm.apiKey) {
+    throw new Error(
+      'HUGGING_FACE_API_KEY não definido. Gere um token gratuito em https://huggingface.co/settings/tokens',
+    );
+  }
+}

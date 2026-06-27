@@ -1,8 +1,9 @@
 import { createApp } from "./app.js";
-import { config } from "./config.js";
+import { config, validateConfig } from "./config.js";
 import { initQdrantCollection } from "./services/qdrant.js";
 
 async function bootstrap() {
+  validateConfig();
   await initQdrantCollection();
 
   const app = createApp();

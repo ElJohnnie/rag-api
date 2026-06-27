@@ -3,7 +3,7 @@ import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { v4 as uuidv4 } from "uuid";
 import { config } from "../config.js";
 import { embeddings } from "./embeddings.js";
-import { qdrantClient } from "./qdrant.js";
+import { deleteDocumentByFileName, qdrantClient } from "./qdrant.js";
 
 const textSplitter = new RecursiveCharacterTextSplitter({
 	chunkSize: 1000,
@@ -72,7 +72,9 @@ export async function processDocument(
 		};
 	});
 
-	// 6. Insert points into the vector database
+	// 6. Replace any previous version of this file (idempotência: evita duplicar
+	// pontos ao re-ingerir o mesmo documento) e então insere os novos pontos.
+	await deleteDocumentByFileName(fileName);
 	await qdrantClient.upsert(config.qdrant.collectionName, {
 		wait: true,
 		points,

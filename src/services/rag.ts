@@ -1,7 +1,6 @@
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
-import type { Response } from "express";
-import type { QueryRequest, RAGResponse } from "../types.js";
+import type { QueryRequest, RAGResponse, RagStreamEvent } from "../types.js";
 import { llm } from "./llm.js";
 import { searchDocuments } from "./query.js";
 
@@ -70,23 +69,19 @@ export async function queryRAG(query: QueryRequest): Promise<RAGResponse> {
 	};
 }
 
-export async function streamRAG(
+// Versão em streaming do RAG. Emite eventos de domínio (sources/token/done) como
+// um async generator — sem conhecer Express/SSE. Quem consome (controller ou CLI)
+// decide como serializar.
+export async function* streamRAG(
 	query: QueryRequest,
-	res: Response,
-): Promise<void> {
+): AsyncGenerator<RagStreamEvent> {
 	const { question, topK = 3 } = query;
 	// Search relevant chunks
 	const searchResults = await searchDocuments({ question, topK });
 
 	if (searchResults.results.length === 0) {
-		res.write(
-			`data: ${JSON.stringify({
-				type: "answer",
-				content: "I did not find the information",
-			})}\n\n`,
-		);
-		res.write(`data: ${JSON.stringify({ type: "done" })}\n\n`);
-		res.end();
+		yield { type: "answer", content: "I did not find the information" };
+		yield { type: "done" };
 		return;
 	}
 
@@ -96,16 +91,11 @@ export async function streamRAG(
 		score: result.score,
 	}));
 
-	res.write(
-		`data: ${JSON.stringify({
-			type: "sources",
-			content: sources,
-		})}\n\n`,
-	);
+	yield { type: "sources", content: sources };
 
 	// Combine chunks into context
 	const context = searchResults.results
-		.map((res, idx) => `[${idx + 1}]: ${res.text}`)
+		.map((result, idx) => `[${idx + 1}]: ${result.text}`)
 		.join("\n\n");
 
 	// Create LLM chain
@@ -118,9 +108,8 @@ export async function streamRAG(
 	});
 
 	for await (const chunk of stream) {
-		res.write(`data: ${JSON.stringify({ type: "token", content: chunk })}\n\n`);
+		yield { type: "token", content: chunk };
 	}
 
-	res.write(`data: ${JSON.stringify({ type: "done" })}\n\n`);
-	res.end();
+	yield { type: "done" };
 }
